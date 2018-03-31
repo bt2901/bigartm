@@ -333,8 +333,34 @@ void PhiMatrixOperations::InvokePhiRegularizers(
           float increment = coefficient * tau * local_r_wt.get(token_id, topic_id);
           r_wt->increase(token_id, topic_id, increment);
         }
+        
       }
       local_r_wt.Reset();
+      // logging
+      for (int topic_id = 0; topic_id < topic_size; ++topic_id) {
+          float coefficient = 1.0f;
+          if (relative_reg) {
+            if (!topics_to_regularize[topic_id]) {
+              continue;
+            }
+            ClassId class_id = n_wt.token(0).class_id;
+            auto iter = parameters.find(class_id);
+            if (relative_reg) {
+                if (iter == parameters.end()) {
+                    continue;
+                }
+            }
+
+            float gamma = reg_iterator->gamma();
+            float n_t = iter->second.first.second[topic_id];
+            double n = iter->second.first.first;
+            float r_it = iter->second.second.second[topic_id];
+            double r_i = iter->second.second.first;
+            coefficient = gamma * (n_t / r_it) + (1 - gamma) * static_cast<float>(n / r_i);
+            LOG(INFO) << "class_id " << class_id;
+        }
+          LOG(INFO) << "Regularizer <" << reg_iterator->name().c_str() << ">: balance factor for topic " << topic_id << " : " << coefficient << " , tau is " << tau;
+      }
     }
   }
 }
