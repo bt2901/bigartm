@@ -11,6 +11,10 @@ addons:
     access_key_id: $ARTIFACTS_KEY
     secret_access_key: $ARTIFACTS_SECRET
     bucket: $ARTIFACTS_BUCKET
+    paths:
+    - $(find . -type f -name *.whl | tr "\n" ":")
+    - $(find . -type f -name *.so | tr "\n" ":")
+    - $(find . -type f -name *.dylib | tr "\n" ":")
 
 
 jobs:
